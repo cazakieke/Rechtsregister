@@ -1,0 +1,1495 @@
+# Rechtsregister - Inspektions-App
+
+Vou criar o app completo para o Registro Legal com todos os 25 itens (R1-R25):
+
+```html
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rechtsregister - Inspektions-App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #2c3e50 0%, #1a252f 100%);
+            min-height: 100vh;
+            padding: 10px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1a252f 0%, #0d1318 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+            border-bottom: 4px solid #34495e;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 15px;
+            opacity: 0.95;
+        }
+
+        .content {
+            padding: 25px;
+        }
+
+        .form-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 5px solid #34495e;
+        }
+
+        .form-section h2 {
+            color: #1a252f;
+            margin-bottom: 20px;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 14px;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="date"],
+        .form-group input[type="time"],
+        .form-group select,
+        .form-group textarea {
+            padding: 12px;
+            border: 2px solid #bdc3c7;
+            border-radius: 5px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #34495e;
+            box-shadow: 0 0 8px rgba(52, 73, 94, 0.3);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* Search and Filter */
+        .search-filter-bar {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 40px 12px 15px;
+            border: 2px solid #bdc3c7;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .search-box .search-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #7f8c8d;
+        }
+
+        .category-select {
+            padding: 12px;
+            border: 2px solid #bdc3c7;
+            border-radius: 5px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+            min-width: 200px;
+        }
+
+        .law-card {
+            background: white;
+            border: 2px solid #ecf0f1;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        .law-card:hover {
+            box-shadow: 0 6px 20px rgba(52, 73, 94, 0.15);
+            border-color: #34495e;
+        }
+
+        .law-card-header {
+            background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+            color: white;
+            padding: 16px 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .law-card-header:hover {
+            background: linear-gradient(135deg, #2c3e50 0%, #1a252f 100%);
+        }
+
+        .law-title-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .law-id-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.25);
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            width: fit-content;
+        }
+
+        .law-title {
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .law-card-header .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #95a5a6;
+        }
+
+        .status-indicator.applicable {
+            background: #27ae60;
+        }
+
+        .status-indicator.not-applicable {
+            background: #7f8c8d;
+        }
+
+        .status-indicator.unclear {
+            background: #f39c12;
+        }
+
+        .law-card-content {
+            padding: 20px;
+            display: none;
+        }
+
+        .law-card-content.active {
+            display: block;
+        }
+
+        .law-info-box {
+            background: #eaeded;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #34495e;
+            margin-bottom: 20px;
+            font-size: 13px;
+        }
+
+        .law-info-box p {
+            margin: 4px 0;
+        }
+
+        .law-info-box strong {
+            color: #1a252f;
+        }
+
+        .law-section {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        .law-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .law-section h4 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .checkbox-item input[type="radio"],
+        .checkbox-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .checkbox-item label {
+            margin: 0;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .applicability-box {
+            background: #f0f4f8;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #3498db;
+            margin-bottom: 15px;
+        }
+
+        .item-box {
+            background: #fffef5;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #f39c12;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .action-plan-box {
+            background: #fff5f5;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #e74c3c;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .action-plan-box.visible {
+            display: block;
+        }
+
+        .evidence-box {
+            background: #f0fff4;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #27ae60;
+            margin-bottom: 15px;
+        }
+
+        .grid-photo {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .photo-preview {
+            border: 2px dashed #bdc3c7;
+            border-radius: 5px;
+            padding: 15px;
+            text-align: center;
+            background: #fafafa;
+        }
+
+        .photo-preview img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 3px;
+            margin-top: 10px;
+        }
+
+        .location-info {
+            background: #f5f5f5;
+            padding: 12px;
+            border-radius: 5px;
+            font-size: 13px;
+            margin-top: 10px;
+        }
+
+        .location-info p {
+            margin: 5px 0;
+            word-break: break-all;
+        }
+
+        .btn-container {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 25px 0;
+        }
+
+        button {
+            padding: 13px 28px;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #34495e;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2c3e50;
+            box-shadow: 0 4px 12px rgba(52, 73, 94, 0.4);
+        }
+
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #7f8c8d;
+        }
+
+        .btn-success {
+            background: #27ae60;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #229954;
+        }
+
+        .btn-info {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-info:hover {
+            background: #2980b9;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.6);
+            overflow-y: auto;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 800px;
+            width: 90%;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            font-size: 22px;
+            font-weight: 700;
+            color: #1a252f;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .close-modal {
+            font-size: 28px;
+            font-weight: bold;
+            color: #aaa;
+            cursor: pointer;
+            line-height: 20px;
+            background: none;
+            border: none;
+            padding: 0;
+        }
+
+        .close-modal:hover {
+            color: #000;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert.active {
+            display: block;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .progress-container {
+            margin-bottom: 20px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #ecf0f1;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #34495e, #2c3e50);
+            transition: width 0.3s;
+        }
+
+        .progress-text {
+            margin-top: 8px;
+            font-size: 13px;
+            color: #7f8c8d;
+        }
+
+        .summary-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 12px;
+        }
+
+        .summary-table th,
+        .summary-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #bdc3c7;
+        }
+
+        .summary-table th {
+            background: #1a252f;
+            color: white;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+
+        .summary-table tr:hover {
+            background: #f5f5f5;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        .status-badge.applicable {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-badge.not-applicable {
+            background: #e2e3e5;
+            color: #383d41;
+        }
+
+        .status-badge.compliant {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-badge.non-compliant {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-badge.open {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .required::after {
+            content: " *";
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 2px solid #ecf0f1;
+        }
+
+        .stat-card .stat-number {
+            font-size: 28px;
+            font-weight: 700;
+            color: #34495e;
+        }
+
+        .stat-card .stat-label {
+            font-size: 12px;
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+
+        .stat-card.applicable-stat .stat-number { color: #27ae60; }
+        .stat-card.not-applicable-stat .stat-number { color: #95a5a6; }
+        .stat-card.pending-stat .stat-number { color: #f39c12; }
+        .stat-card.action-stat .stat-number { color: #e74c3c; }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+
+            .checkbox-group {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .btn-container {
+                flex-direction: column;
+            }
+
+            button {
+                width: 100%;
+            }
+
+            .search-filter-bar {
+                flex-direction: column;
+            }
+
+            .law-card-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+
+            .summary-table {
+                font-size: 10px;
+            }
+
+            .summary-table th,
+            .summary-table td {
+                padding: 6px;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>⚖️ Rechtsregister</h1>
+            <p>Gesetzliche Vorschriften und Compliance-Prüfung (R1-R25)</p>
+        </div>
+
+        <!-- Main Content -->
+        <div class="content">
+            <div id="alertMessage" class="alert"></div>
+
+            <!-- Project Information -->
+            <div class="form-section">
+                <h2>📋 Projektinformationen</h2>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label class="required">Projekt / Bereich</label>
+                        <input type="text" id="projekt" placeholder="z.B. Baustelle ABC">
+                    </div>
+                    <div class="form-group">
+                        <label class="required">Revision / Datum</label>
+                        <input type="date" id="revisionDate">
+                    </div>
+                    <div class="form-group">
+                        <label class="required">Verantwortlicher</label>
+                        <input type="text" id="responsible" placeholder="Name und Titel">
+                    </div>
+                    <div class="form-group">
+                        <label>Kontakt / Telefon</label>
+                        <input type="text" id="contact" placeholder="Telefon oder E-Mail">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Statistics -->
+            <div class="form-section">
+                <h2>📊 Übersicht</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="statTotal">25</div>
+                        <div class="stat-label">Gesamt Vorschriften</div>
+                    </div>
+                    <div class="stat-card applicable-stat">
+                        <div class="stat-number" id="statApplicable">0</div>
+                        <div class="stat-label">Anwendbar</div>
+                    </div>
+                    <div class="stat-card not-applicable-stat">
+                        <div class="stat-number" id="statNotApplicable">0</div>
+                        <div class="stat-label">Nicht anwendbar</div>
+                    </div>
+                    <div class="stat-card pending-stat">
+                        <div class="stat-number" id="statPending">25</div>
+                        <div class="stat-label">Zu klären / Offen</div>
+                    </div>
+                    <div class="stat-card action-stat">
+                        <div class="stat-number" id="statAction">0</div>
+                        <div class="stat-label">Maßnahmen nötig</div>
+                    </div>
+                </div>
+
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressBar" style="width: 0%"></div>
+                    </div>
+                    <div class="progress-text">
+                        Bearbeitet: <span id="progressCount">0</span> / <span id="progressTotal">25</span> 
+                        (<span id="progressPercent">0</span>%)
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search and Filter -->
+            <div class="form-section">
+                <h2>🔍 Suche und Filter</h2>
+                <div class="search-filter-bar">
+                    <div class="search-box">
+                        <input type="text" id="searchInput" placeholder="Suche nach R-Nummer oder Vorschrift..." onkeyup="filterLaws()">
+                        <span class="search-icon">🔍</span>
+                    </div>
+                    <select class="category-select" id="categoryFilter" onchange="filterLaws()">
+                        <option value="all">Alle Kategorien</option>
+                        <option value="general">Allgemeine Vorschriften</option>
+                        <option value="technical">Technische Regeln</option>
+                        <option value="substances">Gefahrstoffe</option>
+                        <option value="biological">Biologische Stoffe</option>
+                        <option value="special">Spezielle Tätigkeiten</option>
+                        <option value="traffic">Verkehr/Bahn</option>
+                        <option value="other">Sonstige</option>
+                    </select>
+                    <select class="category-select" id="statusFilter" onchange="filterLaws()">
+                        <option value="all">Alle Status</option>
+                        <option value="ja">Anwendbar (Ja)</option>
+                        <option value="nein">Nicht anwendbar</option>
+                        <option value="zu_klaren">Zu klären</option>
+                        <option value="pending">Noch nicht bearbeitet</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Law Items Container -->
+            <div id="lawsContainer" class="form-section">
+                <h2>📖 Rechtsvorschriften (R1-R25)</h2>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="btn-container">
+                <button class="btn-primary" onclick="saveDraft()">💾 Als Entwurf speichern</button>
+                <button class="btn-success" onclick="submitForm()">✓ Bericht einreichen</button>
+                <button class="btn-info" onclick="openSummary()">📊 Zusammenfassung anzeigen</button>
+                <button class="btn-secondary" onclick="resetForm()">↺ Formular zurücksetzen</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Modal -->
+    <div id="summaryModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>📊 Rechtsregister-Zusammenfassung</span>
+                <button class="close-modal" onclick="closeSummary()">&times;</button>
+            </div>
+            
+            <table class="summary-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Vorschrift</th>
+                        <th>Anwendbar</th>
+                        <th>Status</th>
+                        <th>Aktion</th>
+                    </tr>
+                </thead>
+                <tbody id="summaryTableBody">
+                </tbody>
+            </table>
+
+            <div class="btn-container" style="margin-top: 20px;">
+                <button class="btn-primary" onclick="exportPDF()">📄 Als PDF exportieren</button>
+                <button class="btn-secondary" onclick="closeSummary()">Schließen</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Legal Register definitions based on the PDF documents
+        const LAWS = [
+            { id: 'R1', title: 'BaustellV §§1–3, 8', category: 'general', itemTitle: 'Geltungsbereich und Arbeitgeberroute belegen', description: 'Bauaufgabe, Bergrechtsausnahme, Ausführungsbeginn und beteiligte Arbeitgeber mit Verträgen/Projektunterlagen abgleichen.', nachweis: 'Projektunterlagen und dokumentierte Entscheidung', docRef: 'Projektakte · SiGePlan' },
+            { id: 'R2', title: 'BaustellV Anhang I', category: 'general', itemTitle: 'Vorankündigungsdaten und Versandweg prüfen', description: 'Anhang-I-Angaben mit Projektstand vergleichen; zuständige Behörde, Zweiwochenfrist und Aushang organisieren.', nachweis: 'Vorankündigung mit Frist und Empfänger', docRef: 'Projektakte · Vorankündigung' },
+            { id: 'R3', title: 'BaustellV Anhang II', category: 'general', itemTitle: 'Anhang-II-Tatbestände vollständig prüfen', description: 'Jede Gefahr konkret bewerten und positive Ergebnisse mit besonderen Maßnahmen verbinden.', nachweis: 'Gefahrenbewertung und Maßnahmennummern', docRef: 'Projektakte · SiGePlan' },
+            { id: 'R4', title: 'RAB 10 / 30', category: 'general', itemTitle: 'Eignung und Aufgaben des Koordinators prüfen', description: 'Baufachliche, arbeitsschutzfachliche und Koordinatorenkenntnisse sowie Erfahrung mit der Bauaufgabe vergleichen.', nachweis: 'Qualifikationen, Referenzen und Bestellung', docRef: 'Projektakte · SiGeKo-Bestellung' },
+            { id: 'R5', title: 'RAB 31', category: 'general', itemTitle: 'Fünf Grundelemente des SiGePlans prüfen', description: 'Ablauf, Gefahr, Ort/Zeit, Maßnahme und Bestimmung je aktivem Gewerk verfolgen; Schnittstellen abgleichen.', nachweis: 'SiGePlan-Revision und Bauzeitenplan', docRef: 'Projektakte · SiGePlan' },
+            { id: 'R6', title: 'RAB 32', category: 'general', itemTitle: 'Spätere Arbeiten sicher beschreiben', description: 'Vorhersehbare Wartung, Inspektion und Austausch je Bauteil mit Zugang, Schutz und Bestandsplänen abgleichen.', nachweis: 'Unterlage mit Plänen und Empfänger', docRef: 'Projektakte · Unterlage für spätere Arbeiten' },
+            { id: 'R7', title: 'ArbSchG §§4–6, 8; RAB 33', category: 'general', itemTitle: 'Gefährdungsbeurteilungen und Zusammenarbeit abstimmen', description: 'Arbeitgeberbewertungen auf gegenseitige Gefahren prüfen; Maßnahmen, Zuständigkeit und Wirksamkeitskontrolle dokumentieren.', nachweis: 'Beurteilungs-/Koordinationsnachweise', docRef: 'Projektakte · SiGePlan' },
+            { id: 'R8', title: 'ArbStättV / ASR', category: 'technical', itemTitle: 'Arbeitsstättenbedingungen konkret festlegen', description: 'Verkehrs-/Fluchtwege, Beleuchtung, Sanitärbereiche und Notfälle gegen Baustellenbelegung und einschlägige ASR prüfen.', nachweis: 'Einrichtungs- und Rettungsplan', docRef: 'Projektakte · SiGePlan' },
+            { id: 'R9', title: 'BetrSichV / TRBS', category: 'technical', itemTitle: 'Prüfbedarf der Arbeitsmittel bestimmen', description: 'Arbeitsmittel erfassen; Prüfart, Umfang, Anlass, Fristen und erforderliche prüfende Person nach BetrSichV/TRBS festlegen.', nachweis: 'Arbeitsmittelverzeichnis und Prüfplan', docRef: 'Projektakte · SiGePlan' },
+            { id: 'R10', title: 'TRBS 2121 / ASR A2.1', category: 'technical', itemTitle: 'Absturzschutz nach Arbeitsaufgabe auswählen', description: 'Arbeitsplätze, Öffnungen, Zugänge und Gerüste bewerten; Vorrang technischer Schutzmaßnahmen und erforderliche Rettung berücksichtigen.', nachweis: 'Absturzschutz-/Zugangskonzept', docRef: 'Projektakte · SiGePlan' },
+            { id: 'R11', title: 'GefStoffV / TRGS', category: 'substances', itemTitle: 'Gefahrstoffe tätigkeitsbezogen beurteilen', description: 'Aktuelle Stoffinformationen mit Exposition abgleichen; Substitution und technische/organisatorische Maßnahmen festlegen.', nachweis: 'Stoffverzeichnis und Gefährdungsbeurteilung', docRef: 'Projektakte · SiGePlan' },
+            { id: 'R12', title: 'TRGS 519 / 524 / 559', category: 'substances', itemTitle: 'Spezifische TRGS aus Befunden ableiten', description: 'Asbest, kontaminierte Bereiche und mineralischen Staub getrennt auf Verfahren, Qualifikation und Schutzanforderungen prüfen.', nachweis: 'Befund, Verfahrensbeschreibung und passende TRGS-Abschnitte', docRef: 'Projektakte · SiGePlan' },
+            { id: 'R13', title: 'BioStoffV / TRBA 400 / 500', category: 'biological', itemTitle: 'Biostoffschutz nachvollziehbar festlegen', description: 'Erreger, Risikogruppe und Exposition prüfen; Hygiene, Verfahren und Schutz anhand einschlägiger TRBA konkretisieren.', nachweis: 'Biostoffbewertung und Hygieneplan', docRef: 'Projektakte · SiGePlan' },
+            { id: 'R14', title: 'DGUV V1 / V38 / Regel 101-038', category: 'technical', itemTitle: 'Unfallverhütungsvorschriften richtig zuordnen', description: 'Zuständigen Unfallversicherungsträger und geltende Bauvorschriften bestimmen; konkrete Bauaufgabe abgleichen.', nachweis: 'Träger-/Vorschriftenzuordnung und Maßnahmen', docRef: 'Projektakte · SiGePlan' },
+            { id: 'R15', title: 'DGUV V3 / V4', category: 'technical', itemTitle: 'Elektrische Sicherheit und Prüfzuständigkeit festlegen', description: 'Geltende DGUV-Vorschrift, Anlage/Geräte, Prüfumfang, Fristen und qualifizierte Verantwortliche zuordnen.', nachweis: 'Elektroprüfplan und Zuständigkeitsnachweis', docRef: 'Projektakte · SiGePlan' },
+            { id: 'R16', title: 'ASR A5.2 / StVO §45 / RSA', category: 'traffic', itemTitle: 'Verkehrsrecht und Arbeitsraum abgleichen', description: 'Erforderliche Anordnung und Verkehrszeichenplan mit Arbeitsräumen und ASR A5.2 abstimmen.', nachweis: 'Behördliche Anordnung und Verkehrs-/Arbeitsraumplan', docRef: 'Projektakte · SiGePlan' },
+            { id: 'R17', title: 'Bahnregelwerk / DGUV V78', category: 'traffic', itemTitle: 'Bahnsicherung verbindlich abstimmen', description: 'Betreiberregeln, Betriebszustand und Schutz vor Bahn-/Fahrleitungsgefahren projektspezifisch klären.', nachweis: 'Sicherungsplan und Betreiberfreigabe', docRef: 'Projektakte · SiGePlan' },
+            { id: 'R18', title: 'StrlSchG / StrlSchV', category: 'special', itemTitle: 'Strahlenschutzorganisation belegen', description: 'Quelle, Bereiche, Berechtigungen, Zuständigkeiten und Überwachungsmaßnahmen mit Fachverantwortlichen prüfen.', nachweis: 'Strahlenschutzunterlagen', docRef: 'Projektakte · SiGePlan' },
+            { id: 'R19', title: 'DruckluftV / Taucherregelwerk', category: 'special', itemTitle: 'Druckluft-/Taucheinsatz fachkundig prüfen', description: 'Tatsächliches Verfahren dem Regelwerk zuordnen; Personalvoraussetzungen, Betrieb und Rettung festlegen.', nachweis: 'Verfahrens-/Personal-/Rettungsnachweise', docRef: 'Projektakte · SiGePlan' },
+            { id: 'R20', title: 'SprengG / Verordnungen', category: 'special', itemTitle: 'Sprengberechtigungen und Verfahren prüfen', description: 'Erforderliche Erlaubnisse und Befähigungen mit Tätigkeit, Ort und verantwortlicher Person abgleichen.', nachweis: 'Berechtigungen und Sprengkonzept', docRef: 'Projektakte · SiGePlan' },
+            { id: 'R21', title: 'LärmVibrationsArbSchV / OStrV', category: 'technical', itemTitle: 'Emissionen auf andere Gewerke bewerten', description: 'Lärm, Vibration und optische Strahlung am tatsächlichen Arbeitsplatz bewerten; Bereiche, Zeiten und Schutz koordinieren.', nachweis: 'Expositionsbewertung und Schutzplanung', docRef: 'Projektakte · SiGePlan' },
+            { id: 'R22', title: 'ArbMedVV / PSA-BV', category: 'general', itemTitle: 'Arbeitgebermaßnahmen abstimmen', description: 'Erforderliche Vorsorge und PSA aus Gefährdungsbeurteilung ableiten; Eignung und Rettung abstimmen. Keine medizinischen Befunde hier erfassen.', nachweis: 'Bestätigung organisatorischer Umsetzung ohne Gesundheitsdaten', docRef: 'Projektakte · SiGePlan' },
+            { id: 'R23', title: 'Landesrecht / Bescheide / Betreiber', category: 'other', itemTitle: 'Örtliche Bescheide und Betreiberauflagen übernehmen', description: 'Jeden relevanten Bescheid auf Arbeitsschutzfolgen, Fristen, Zuständigkeit und Nachweise prüfen.', nachweis: 'Bescheidnummer, konkrete Auflage und Umsetzungsnachweis', docRef: 'Projektakte · SiGePlan' },
+            { id: 'R24', title: 'DIN / VDE / weitere technische Regeln', category: 'technical', itemTitle: 'Technische Regel konkret nachweisen', description: 'Ausgabe, Abschnitt und Anwendungsgrund der DIN/VDE-Regel dem Verfahren zuordnen; Umsetzung projektbezogen prüfen.', nachweis: 'Regelausgabe und konkrete technische Festlegung', docRef: 'Projektakte · SiGePlan' },
+            { id: 'R25', title: 'Weitere projektspezifische Vorschrift', category: 'other', itemTitle: 'Zusätzliche Projektpflicht in Prüfschritte übersetzen', description: 'Vorschrift und Tatbestand benennen; konkretes Soll, Verantwortlichen und erforderlichen Nachweis bestimmen.', nachweis: 'Amtliche Fundstelle und projektspezifischer Prüfnachweis', docRef: 'Projektakte · SiGePlan' }
+        ];
+
+        let lawData = {};
+
+        // Initialize
+        window.addEventListener('DOMContentLoaded', function() {
+            setCurrentDate();
+            initializeLaws();
+            loadDraftFromStorage();
+        });
+
+        function setCurrentDate() {
+            document.getElementById('revisionDate').value = new Date().toISOString().split('T')[0];
+        }
+
+        function initializeLaws() {
+            LAWS.forEach(law => {
+                lawData[law.id] = {
+                    applicable: null,
+                    reasoning: '',
+                    status: null,
+                    evidence: '',
+                    responsible: '',
+                    deadline: '',
+                    checkedDate: '',
+                    actionPlan: '',
+                    actionResponsible: '',
+                    actionDeadline: '',
+                    photoDate: '',
+                    photoTime: '',
+                    locationDescription: '',
+                    latitude: '',
+                    longitude: '',
+                    accuracy: ''
+                };
+            });
+
+            renderLaws(LAWS);
+            updateStatistics();
+        }
+
+        function renderLaws(lawsToRender) {
+            const container = document.getElementById('lawsContainer');
+            container.innerHTML = '<h2>📖 Rechtsvorschriften (R1-R25)</h2>';
+
+            lawsToRender.forEach(law => {
+                container.innerHTML += createLawCard(law);
+            });
+
+            // Add event listeners
+            document.querySelectorAll('.law-card-header').forEach(header => {
+                header.addEventListener('click', function() {
+                    const card = this.closest('.law-card');
+                    const content = card.querySelector('.law-card-content');
+                    content.classList.toggle('active');
+                });
+            });
+        }
+
+        function createLawCard(law) {
+            return `
+            <div class="law-card" data-law-id="${law.id}" data-category="${law.category}">
+                <div class="law-card-header">
+                    <div class="law-title-group">
+                        <span class="law-id-badge">${law.id}</span>
+                        <div class="law-title">${law.title}</div>
+                    </div>
+                    <span class="status-indicator" id="indicator-${law.id}"></span>
+                </div>
+
+                <div class="law-card-content">
+                    <div class="law-info-box">
+                        <p><strong>Bezug:</strong> ${law.title}</p>
+                        <p><strong>Dokumentzuordnung:</strong> ${law.docRef}</p>
+                        <p><strong>Aktivierung:</strong> Aktiv durch Rechtsregister „Ja".</p>
+                    </div>
+
+                    <!-- Applicability Section -->
+                    <div class="law-section">
+                        <h4>🎯 Anwendbarkeit</h4>
+                        <div class="applicability-box">
+                            <div class="checkbox-group">
+                                <div class="checkbox-item">
+                                    <input type="radio" id="applicable-${law.id}-yes" name="applicable-${law.id}" 
+                                           value="ja" onchange="handleApplicability('${law.id}')">
+                                    <label for="applicable-${law.id}-yes">Ja</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="radio" id="applicable-${law.id}-no" name="applicable-${law.id}" 
+                                           value="nein" onchange="handleApplicability('${law.id}')">
+                                    <label for="applicable-${law.id}-no">Nein</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="radio" id="applicable-${law.id}-unclear" name="applicable-${law.id}" 
+                                           value="zu_klaren" onchange="handleApplicability('${law.id}')">
+                                    <label for="applicable-${law.id}-unclear">Zu klären</label>
+                                </div>
+                            </div>
+                            <div class="form-group" style="margin-top: 12px;">
+                                <label>Begründung (bei Nicht-Anwendbarkeit)</label>
+                                <textarea id="reasoning-${law.id}" placeholder="Kurze Begründung..." 
+                                          onchange="updateLawData('${law.id}', 'reasoning', this.value)"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Item 01 Section -->
+                    <div class="law-section item-box" id="item-${law.id}">
+                        <h4>📋 01 - ${law.itemTitle} [Planung]</h4>
+                        <p style="font-size: 13px; color: #7f8c8d; margin-bottom: 12px;">${law.description}</p>
+                        <p style="font-size: 12px; color: #34495e; margin-bottom: 12px;"><strong>Nachweis:</strong> ${law.nachweis}</p>
+                        
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="radio" id="status-${law.id}-open" name="status-${law.id}" 
+                                       value="offen" onchange="handleStatusChange('${law.id}', this.value)">
+                                <label for="status-${law.id}-open">⏳ Offen</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="radio" id="status-${law.id}-fulfilled" name="status-${law.id}" 
+                                       value="erfüllt" onchange="handleStatusChange('${law.id}', this.value)">
+                                <label for="status-${law.id}-fulfilled">✓ Erfüllt</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="radio" id="status-${law.id}-not-fulfilled" name="status-${law.id}" 
+                                       value="nicht_erfüllt" onchange="handleStatusChange('${law.id}', this.value)">
+                                <label for="status-${law.id}-not-fulfilled">✗ Nicht erfüllt</label>
+                            </div>
+                        </div>
+
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label>Verantwortlich</label>
+                                <input type="text" id="resp-${law.id}" placeholder="Name"
+                                       onchange="updateLawData('${law.id}', 'responsible', this.value)">
+                            </div>
+                            <div class="form-group">
+                                <label>Frist</label>
+                                <input type="date" id="deadline-${law.id}"
+                                       onchange="updateLawData('${law.id}', 'deadline', this.value)">
+                            </div>
+                            <div class="form-group">
+                                <label>Geprüft am</label>
+                                <input type="date" id="checked-${law.id}"
+                                       onchange="updateLawData('${law.id}', 'checkedDate', this.value)">
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="margin-top: 12px;">
+                            <label>Nachweis / Ablage / Maßnahmen / Begründung</label>
+                            <textarea id="evidence-${law.id}" placeholder="Details eingeben..."
+                                      onchange="updateLawData('${law.id}', 'evidence', this.value)"></textarea>
+                        </div>
+
+                        <!-- Action Plan -->
+                        <div class="action-plan-box" id="actionplan-${law.id}">
+                            <h4>⚠️ Maßnahmenplan zur Behebung</h4>
+                            <div class="form-group">
+                                <label class="required">Korrekturmaßnahmen</label>
+                                <textarea id="actionplan-text-${law.id}" placeholder="Detaillierte Beschreibung..."
+                                          onchange="updateLawData('${law.id}', 'actionPlan', this.value)"></textarea>
+                            </div>
+                            <div class="grid-2">
+                                <div class="form-group">
+                                    <label class="required">Verantwortlicher</label>
+                                    <input type="text" id="actionplan-resp-${law.id}" placeholder="Name"
+                                           onchange="updateLawData('${law.id}', 'actionResponsible', this.value)">
+                                </div>
+                                <div class="form-group">
+                                    <label class="required">Friststellung</label>
+                                    <input type="date" id="actionplan-deadline-${law.id}"
+                                           onchange="updateLawData('${law.id}', 'actionDeadline', this.value)">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Photo Evidence -->
+                        <div class="evidence-box">
+                            <h4>📸 Fotonachweis und Georeferenzierung</h4>
+                            <div class="grid-photo">
+                                <div class="form-group">
+                                    <label>Aufnahmedatum</label>
+                                    <input type="date" id="photo-date-${law.id}"
+                                           onchange="updateLawData('${law.id}', 'photoDate', this.value)">
+                                </div>
+                                <div class="form-group">
+                                    <label>Aufnahmezeit</label>
+                                    <input type="time" id="photo-time-${law.id}"
+                                           onchange="updateLawData('${law.id}', 'photoTime', this.value)">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Foto hochladen</label>
+                                <input type="file" id="photo-file-${law.id}" accept="image/*" 
+                                       onchange="handlePhotoUpload(event, '${law.id}')">
+                                <div id="photo-preview-${law.id}" class="photo-preview"></div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>
+                                    <input type="checkbox" id="gps-enabled-${law.id}" 
+                                           onchange="handleGPSToggle('${law.id}')">
+                                    GPS-Standort erfassen
+                                </label>
+                            </div>
+
+                            <div id="location-info-${law.id}" class="location-info" style="display: none;">
+                                <p><strong>Breitengrad:</strong> <span id="latitude-${law.id}">-</span></p>
+                                <p><strong>Längengrad:</strong> <span id="longitude-${law.id}">-</span></p>
+                                <p><strong>Genauigkeit:</strong> <span id="accuracy-${law.id}">-</span> m</p>
+                                <p><strong>Status:</strong> <span id="gps-status-${law.id}">Erfassung aktiv...</span></p>
+                            </div>
+
+                            <div class="form-group" style="margin-top: 12px;">
+                                <label>Ortsangabe / Lokalisierungsbeschreibung</label>
+                                <input type="text" id="location-desc-${law.id}" placeholder="z.B. Baustellenbüro, Bereich X"
+                                       onchange="updateLawData('${law.id}', 'locationDescription', this.value)">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Final Approval -->
+                    <div class="law-section">
+                        <h4>✅ Prüfung / Freigabe</h4>
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label>Prüfer / Freigeber</label>
+                                <input type="text" id="approval-name-${law.id}" placeholder="Name">
+                            </div>
+                            <div class="form-group">
+                                <label>Datum</label>
+                                <input type="date" id="approval-date-${law.id}">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            `;
+        }
+
+        function handleApplicability(lawId) {
+            const applicable = document.querySelector(`input[name="applicable-${lawId}"]:checked`)?.value;
+            lawData[lawId].applicable = applicable;
+
+            const itemBox = document.getElementById(`item-${lawId}`);
+            const indicator = document.getElementById(`indicator-${lawId}`);
+
+            if (applicable === 'ja') {
+                itemBox.style.display = 'block';
+                indicator.className = 'status-indicator applicable';
+            } else if (applicable === 'nein') {
+                itemBox.style.display = 'none';
+                indicator.className = 'status-indicator not-applicable';
+                document.querySelectorAll(`input[name="status-${lawId}"]`).forEach(el => el.checked = false);
+            } else if (applicable === 'zu_klaren') {
+                itemBox.style.display = 'none';
+                indicator.className = 'status-indicator unclear';
+            }
+
+            updateStatistics();
+        }
+
+        function handleStatusChange(lawId, value) {
+            lawData[lawId].status = value;
+            
+            const actionPlanBox = document.getElementById(`actionplan-${lawId}`);
+            
+            if (value === 'nicht_erfüllt') {
+                actionPlanBox.classList.add('visible');
+            } else {
+                actionPlanBox.classList.remove('visible');
+            }
+
+            updateStatistics();
+        }
+
+        function updateLawData(lawId, field, value) {
+            lawData[lawId][field] = value;
+        }
+
+        function handlePhotoUpload(event, lawId) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById(`photo-preview-${lawId}`);
+                    preview.innerHTML = `<img src="${e.target.result}" alt="Vorschau"><p style="margin-top:8px; font-size:12px; color:#7f8c8d;">${file.name}</p>`;
+                };
+                reader.readAsDataURL(file);
+
+                const now = new Date();
+                document.getElementById(`photo-date-${lawId}`).value = now.toISOString().split('T')[0];
+                document.getElementById(`photo-time-${lawId}`).value = now.toTimeString().slice(0, 5);
+                
+                updateLawData(lawId, 'photoDate', now.toISOString().split('T')[0]);
+                updateLawData(lawId, 'photoTime', now.toTimeString().slice(0, 5));
+            }
+        }
+
+        function handleGPSToggle(lawId) {
+            const checkbox = document.getElementById(`gps-enabled-${lawId}`);
+            const locationInfo = document.getElementById(`location-info-${lawId}`);
+
+            if (checkbox.checked) {
+                locationInfo.style.display = 'block';
+                getGPSLocation(lawId);
+            } else {
+                locationInfo.style.display = 'none';
+            }
+        }
+
+        function getGPSLocation(lawId) {
+            if (navigator.geolocation) {
+                const statusSpan = document.getElementById(`gps-status-${lawId}`);
+                statusSpan.textContent = '⏳ Erfassung läuft...';
+
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        document.getElementById(`latitude-${lawId}`).textContent = 
+                            position.coords.latitude.toFixed(6);
+                        document.getElementById(`longitude-${lawId}`).textContent = 
+                            position.coords.longitude.toFixed(6);
+                        document.getElementById(`accuracy-${lawId}`).textContent = 
+                            Math.round(position.coords.accuracy);
+                        document.getElementById(`gps-status-${lawId}`).textContent = '✓ Erfolgreich erfasst';
+
+                        updateLawData(lawId, 'latitude', position.coords.latitude.toFixed(6));
+                        updateLawData(lawId, 'longitude', position.coords.longitude.toFixed(6));
+                        updateLawData(lawId, 'accuracy', Math.round(position.coords.accuracy));
+                    },
+                    function(error) {
+                        document.getElementById(`gps-status-${lawId}`).textContent = 
+                            '✗ Fehler: ' + error.message;
+                    },
+                    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+                );
+            } else {
+                showAlert('Geolokalisierung wird von diesem Browser nicht unterstützt.', 'error');
+            }
+        }
+
+        function filterLaws() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const category = document.getElementById('categoryFilter').value;
+            const status = document.getElementById('statusFilter').value;
+
+            const filtered = LAWS.filter(law => {
+                const matchesSearch = law.id.toLowerCase().includes(searchTerm) || 
+                                      law.title.toLowerCase().includes(searchTerm) ||
+                                      law.itemTitle.toLowerCase().includes(searchTerm);
+                
+                const matchesCategory = category === 'all' || law.category === category;
+                
+                let matchesStatus = true;
+                if (status !== 'all') {
+                    const applicable = lawData[law.id]?.applicable;
+                    if (status === 'pending') {
+                        matchesStatus = !applicable;
+                    } else {
+                        matchesStatus = applicable === status;
+                    }
+                }
+
+                return matchesSearch && matchesCategory && matchesStatus;
+            });
+
+            renderLaws(filtered);
+            
+            // Restore state for filtered laws
+            filtered.forEach(law => {
+                if (lawData[law.id].applicable) {
+                    const radio = document.querySelector(`input[value="${lawData[law.id].applicable}"][name="applicable-${law.id}"]`);
+                    if (radio) {
+                        radio.checked = true;
+                        handleApplicability(law.id);
+                    }
+                }
+                if (lawData[law.id].status) {
+                    const radio = document.querySelector(`input[value="${lawData[law.id].status}"][name="status-${law.id}"]`);
+                    if (radio) {
+                        radio.checked = true;
+                    }
+                }
+            });
+        }
+
+        function updateStatistics() {
+            let applicable = 0;
+            let notApplicable = 0;
+            let pending = 0;
+            let actionNeeded = 0;
+            let completed = 0;
+
+            LAWS.forEach(law => {
+                const data = lawData[law.id];
+                
+                if (data.applicable === 'ja') {
+                    applicable++;
+                    if (data.status) completed++;
+                    if (data.status === 'nicht_erfüllt') actionNeeded++;
+                } else if (data.applicable === 'nein') {
+                    notApplicable++;
+                    completed++;
+                } else {
+                    pending++;
+                }
+            });
+
+            document.getElementById('statApplicable').textContent = applicable;
+            document.getElementById('statNotApplicable').textContent = notApplicable;
+            document.getElementById('statPending').textContent = pending;
+            document.getElementById('statAction').textContent = actionNeeded;
+
+            const percentage = Math.round((completed / LAWS.length) * 100);
+            document.getElementById('progressBar').style.width = percentage + '%';
+            document.getElementById('progressCount').textContent = completed;
+            document.getElementById('progressPercent').textContent = percentage;
+        }
+
+        function saveDraft() {
+            const projektName = document.getElementById('projekt').value;
+            
+            if (!projektName) {
+                showAlert('Bitte Projekt eingeben!', 'error');
+                return;
+            }
+
+            const formData = {
+                timestamp: new Date().toISOString(),
+                projekt: projektName,
+                revisionDate: document.getElementById('revisionDate').value,
+                responsible: document.getElementById('responsible').value,
+                contact: document.getElementById('contact').value,
+                laws: lawData
+            };
+
+            localStorage.setItem('lawRegisterDraft', JSON.stringify(formData));
+            showAlert('Entwurf erfolgreich gespeichert!', 'success');
+        }
+
+        function loadDraftFromStorage() {
+            const draft = localStorage.getItem('lawRegisterDraft');
+            if (draft) {
+                const formData = JSON.parse(draft);
+                
+                document.getElementById('projekt').value = formData.projekt || '';
+                document.getElementById('revisionDate').value = formData.revisionDate || '';
+                document.getElementById('responsible').value = formData.responsible || '';
+                document.getElementById('contact').value = formData.contact || '';
+
+                Object.keys(formData.laws || {}).forEach(lawId => {
+                    lawData[lawId] = formData.laws[lawId];
+                });
+
+                filterLaws();
+                updateStatistics();
+            }
+        }
+
+        function submitForm() {
+            const projektName = document.getElementById('projekt').value;
+            const responsible = document.getElementById('responsible').value;
+
+            if (!projektName || !responsible) {
+                showAlert('Bitte alle erforderlichen Felder ausfüllen!', 'error');
+                return;
+            }
+
+            const report = generateReport();
+            
+            localStorage.removeItem('lawRegisterDraft');
+            localStorage.setItem(`lawReport_${Date.now()}`, JSON.stringify(report));
+
+            showAlert('Bericht erfolgreich eingereicht! Referenz-ID: ' + Date.now(), 'success');
+
+            setTimeout(() => {
+                resetForm();
+            }, 2500);
+        }
+
+        function generateReport() {
+            const report = {
+                timestamp: new Date().toISOString(),
+                projekt: document.getElementById('projekt').value,
+                revisionDate: document.getElementById('revisionDate').value,
+                responsible: document.getElementById('responsible').value,
+                contact: document.getElementById('contact').value,
+                laws: []
+            };
+
+            LAWS.forEach(law => {
+                const data = lawData[law.id];
+                report.laws.push({
+                    id: law.id,
+                    title: law.title,
+                    applicable: data.applicable,
+                    status: data.status,
+                    evidence: data.evidence,
+                    actionPlan: data.actionPlan,
+                    photoData: {
+                        date: data.photoDate,
+                        time: data.photoTime,
+                        location: data.locationDescription,
+                        gps: {
+                            latitude: data.latitude,
+                            longitude: data.longitude
+                        }
+                    }
+                });
+            });
+
+            return report;
+        }
+
+        function openSummary() {
+            const modal = document.getElementById('summaryModal');
+            modal.classList.add('active');
+            updateSummaryTable();
+        }
+
+        function closeSummary() {
+            document.getElementById('summaryModal').classList.remove('active');
+        }
+
+        function updateSummaryTable() {
+            const tbody = document.getElementById('summaryTableBody');
+            tbody.innerHTML = '';
+
+            LAWS.forEach(law => {
+                const data = lawData[law.id];
+                const applicableText = data.applicable === 'ja' ? '✓ Ja' : data.applicable === 'nein' ? '✗ Nein' : data.applicable === 'zu_klaren' ? '⏳ Zu klären' : '- Offen';
+                const statusText = data.status || '-';
+                const actionNeeded = data.status === 'nicht_erfüllt' ? '⚠️ Ja' : '✓ Nein';
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>${law.id}</strong></td>
+                    <td style="font-size: 11px;">${law.title}</td>
+                    <td><span class="status-badge ${data.applicable === 'ja' ? 'applicable' : 'not-applicable'}">${applicableText}</span></td>
+                    <td>${statusText !== '-' ? `<span class="status-badge ${statusText === 'erfüllt' ? 'compliant' : statusText === 'nicht_erfüllt' ? 'non-compliant' : 'open'}">${statusText}</span>` : '-'}</td>
+                    <td>${actionNeeded}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function exportPDF() {
+            alert('PDF-Export-Funktion: Diese Funktion erfordert eine PDF-Library wie jsPDF.\n\nFür Produktionsumgebung empfohlen: jsPDF + html2canvas');
+        }
+
+        function resetForm() {
+            if (confirm('Alle Daten wirklich löschen?')) {
+                document.querySelectorAll('input[type="text"], input[type="date"], input[type="time"], textarea').forEach(el => {
+                    el.value = '';
+                });
+                document.querySelectorAll('input[type="radio"], input[type="checkbox"]').forEach(el => {
+                    el.checked = false;
+                });
+                localStorage.removeItem('lawRegisterDraft');
+                document.getElementById('searchInput').value = '';
+                document.getElementById('categoryFilter').value = 'all';
+                document.getElementById('statusFilter').value = 'all';
+                initializeLaws();
+                setCurrentDate();
+                showAlert('Formular wurde zurückgesetzt!', 'success');
+            }
+        }
+
+        function showAlert(message, type) {
+            const alertDiv = document.getElementById('alertMessage');
+            alertDiv.textContent = message;
+            alertDiv.className = `alert active alert-${type}`;
+
+            setTimeout(() => {
+                alertDiv.classList.remove('active');
+            }, 5000);
+        }
+
+        // Auto-save every 60 seconds
+        setInterval(() => {
+            if (document.getElementById('projekt').value) {
+                saveDraft();
+            }
+        }, 60000);
+
+        // Close modal on outside click
+        window.onclick = function(event) {
+            const modal = document.getElementById('summaryModal');
+            if (event.target === modal) {
+                closeSummary();
+            }
+        };
+    </script>
+</body>
+</html>
+```
+
+## 🎯 **Funcionalidades Principais:**
+
+### ✅ **25 Registros Legais Completos (R1-R25):**
+
+**Categorias Organizadas:**
+- 📋 **Geral** (R1-R7, R22): BaustellV, RAB, ArbSchG
+- ⚙️ **Técnica** (R8-R10, R14-R15, R21, R24): ASR, BetrSichV, TRBS, DGUV
+- ☣️ **Substâncias Perigosas** (R11-R12): GefStoffV, TRGS
+- 🦠 **Biológico** (R13): BioStoffV, TRBA
+- 🎯 **Especial** (R18-R20): Radiação, Mergulho, Explosivos
+- 🚦 **Trânsito/Ferrovia** (R16-R17): StVO, Bahnregelwerk
+- 📄 **Outros** (R23, R25): Direito estadual, Prescrições adicionais
+
+### 🔍 **Recursos Avançados:**
+
+1. **Sistema de Busca e Filtros**
+   - Busca por texto (ID ou título)
+   - Filtro por categoria
+   - Filtro por status (aplicável/não aplicável/pendente)
+
+2. **Dashboard de Estatísticas**
+   - Total de vorschriften
+   - Aplicáveis vs Não aplicáveis
+   - Pendentes de revisão
+   - Ações necessárias
+
+3. **Indicadores Visuais**
+   - 🟢 Verde: Aplicável
+   - ⚪ Cinza: Não aplicável
+   - 🟡 Amarelo: A esclarecer
+
+4. **Por cada Item (R1-R25):**
+   - ✅ Anwendbarkeit (Ja/Nein/Zu klären)
+   - ✅ Status de conformidade
+   - ✅ Plano de ação (se não conforme)
+   - ✅ Evidência fotográfica com GPS
+   - ✅ Responsável e prazos
+   - ✅ Assinatura de aprovação
+
+5. **Resumo Compacto**
+   - Tabela com todos os 25 itens
+   - Visualização rápida de status
+   - Export para PDF (preparado)
+
+### 🎨 **Design:**
+- Tema escuro profissional (jurídico)
+- Interface compacta para gerenciar 25 itens
+- Cards expansíveis com informações organizadas
+- Totalmente responsivo para PC e mobile
+
+Copie o código completo e salve como arquivo `.html` para uso imediato em qualquer dispositivo!
